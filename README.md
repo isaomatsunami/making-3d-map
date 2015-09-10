@@ -5,7 +5,7 @@ On May 3, 2015, Japan's Meteorological Agency issued the volcanic alert for Hako
 
 The agency's press release was like this.
 
-![screen_shot01](images/hakone20150503.png "press release")
+![press release 20150503](images/hakone20150503.png)
 
 Obviously, they have depth data.
 
@@ -23,11 +23,11 @@ In this page, I use Aster Global DEM, 30 meter mesh for whole globe, maintained 
 
 In Earth Explorer: <http://earthexplorer.usgs.gov>, select ASTER GLOBAL DEM as dataset and download 2 files which seem to cover Hakone area.
 
-.. image:: _static/images/earth_explorer_asterGDEM.png
+![earth explorer aster DEM](images/earth_explorer_asterGDEM.png)
 
 Check two DEM files by droppong onto QGIS.
 
-.. image:: _static/images/ASTER_QGIS.png
+![aster DEM on QGIS](images/ASTER_QGIS.png)
 
 You can easily, by QGIS, merge files into a single file and clip area as you want. In this page, I use GDAL/OGR directly from command line. (because I want to clip data exactly)
 
@@ -97,14 +97,14 @@ Texture from Landsat
 
 Texture is a surface image of 3D graphics. In this page I use Landsat 8 data and CREATE an image.
 
-.. image:: _static/images/earth_explorer_landsat8.png
+![earth explorer landsat 8](images/earth_explorer_landsat8.png)
 
 Find and download Level-1 production of cloudless image. In this case, LC81070362015122LGN00.tar
 
 Level-1 production is composed of B1~B11 geoTiff files and BQA/MTL files.
 Visible lights are Band2(blue), Band3(green) and Band4(red). Band8 is panchromatic(colorless), having 15 meter resolution. 
 
-.. image:: _static/images/landsat8.png
+![landsat 8](images/landsat8.png)
 
 Pansharpening is an operation which color-paints panchromatic image with less precise RGB images. There are several ways.
 
@@ -218,18 +218,18 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 	Band 3 Block=1332x1 Type=UInt16, ColorInterp=Undefined
 
 
-.. image:: _static/images/pansharpened.png
+![pansharpened](images/pansharpened.png)
 
 owakudaniRGB.tif is 3-band geotiff image, not RGB image. If you open it by usual image softwares, it shows only the first band of the three, in black and white.
 
 When you open it by QGIS, it automatically merges 3 band into RGB color image.
 Click on the Layer and save as image, not as value. You get RGB tif with no geometric information.
 
-.. image:: _static/images/saveasimage.png
+![save as image](images/saveasimage.png)
 
 Use and abuse your photoshop as you want, as it has no geometric information any more.
 
-.. image:: _static/images/photoshopmap.png
+![photoshop map](images/photoshopmap.png)
 
 **Remember** this geoinfo-less image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)] area even after it is resized.
 
@@ -241,11 +241,11 @@ Next morning, I got my account password and permission to use data from JMA Unif
 
 The data looked like this.
 
-.. image:: _static/images/originaldata.jpg
+![original quake data](images/originaldata.png)
 
 What I filtered is this. 
 
-.. image:: _static/images/trimmeddata.png
+![trimmed quake data](images/trimmeddata.png)
 
 This is a good training for text manipulation by scripting language (Python/Ruby).
 
@@ -259,8 +259,7 @@ I wrote my own wrapper library. I won't elaborate how to use it.
 
 Following points are common in both cases. 
 
-LonLatAlt2XYZ function
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**** LonLatAlt2XYZ function
 
 DEM data and Quake data are longitude/latitude/altitude data. You need to translate it into X/Y/Z data. ECEF(Earth-Centered, Earth-Fixed) Cartesian coordinate system is the best target coordinate.
 
@@ -269,7 +268,7 @@ ECEF system: <https://en.wikipedia.org/wiki/ECEF>
 In this case, I adopt a much simpler translation. 
 
 Remember that the length of 1 degree of latitude is about 111000 meters. but that of longitude depends on latitude. At Owakudani (139.027287, 35.245254), 1 degree of longitude is about 90163 meters.
-The function below, geoTranslator, returns function which translates (lon(deg),lat(deg),alt(km)) into [x,y,z] array.
+The function below, geoTranslator, returns function which translates (lon(deg),lat(deg),alt(km)) into [x,y,z] array. Are you familiar to closure in javascript?
 ::
 
     geoTranslator = function(offset_x,offset_y,offset_z,scale_x,scale_y,scale_z){
@@ -317,8 +316,7 @@ By the same token, the function, uvTranslator, returns function which translates
 **Recall** the texture image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)].
 
 
-Terrain geometry
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**** Terrain geometry
 
 After having loaded owakudaniDEM.npy, you have to construct terrain geometry.
 You had inspected owakudaniDEM.tif before and gotten these information.
