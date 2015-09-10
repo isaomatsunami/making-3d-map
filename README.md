@@ -333,7 +333,6 @@ You had inspected owakudaniDEM.tif before and gotten these information.
 ![geotiff coordinates](images/geotiffcoordinates.png)
 
 Recall that owakudaniDEM.npy was binary data of int16 and height value was multipled by 10.
-
 ::
 
     # _dem is int16 binary data. change it to TypedArray
@@ -356,7 +355,7 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
     }
     # Then construct webGL geometry by dem_3d, uv_dem
 
-The webGL is another topic. index.html is a simple THREE.js sample.
+The webGL is another topic. Read the source code of index.html, a very simple THREE.js sample.
 
 ![hakone sample](images/hakonesample.png)
 
