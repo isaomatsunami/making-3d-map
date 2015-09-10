@@ -1,5 +1,5 @@
-Making Subterranean Map
-==========================
+Making 3D Map with DGAL/QGIS
+==================================
 
 On May 3, 2015, Japan's Meteorological Agency issued the volcanic alert for Hakone, most popular destination for foreign tourists, restricting access to the area 300 meters from Owakudani. 
 
@@ -25,7 +25,7 @@ In Earth Explorer: <http://earthexplorer.usgs.gov>, select ASTER GLOBAL DEM as d
 
 ![earth explorer aster DEM](images/earth_explorer_asterGDEM.png)
 
-Check two DEM files by droppong onto QGIS.
+Check 2 DEM files by dropping onto QGIS.
 
 ![aster DEM on QGIS](images/ASTER_QGIS.png)
 
@@ -112,7 +112,6 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 * gdal_pansharpen (wait for GDAL 2.1)
 * write program (PanSharpening)
 
-::
 
 	# write out geometric information (tfw world file)
 	listgeo -tfw LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF
@@ -259,7 +258,7 @@ I wrote my own wrapper library. I won't elaborate how to use it.
 
 Following points are common in both cases. 
 
-**** LonLatAlt2XYZ function
+#### LonLatAlt2XYZ function
 
 DEM data and Quake data are longitude/latitude/altitude data. You need to translate it into X/Y/Z data. ECEF(Earth-Centered, Earth-Fixed) Cartesian coordinate system is the best target coordinate.
 
@@ -315,8 +314,7 @@ By the same token, the function, uvTranslator, returns function which translates
 
 **Recall** the texture image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)].
 
-
-**** Terrain geometry
+#### Terrain geometry
 
 After having loaded owakudaniDEM.npy, you have to construct terrain geometry.
 You had inspected owakudaniDEM.tif before and gotten these information.
@@ -330,7 +328,7 @@ You had inspected owakudaniDEM.tif before and gotten these information.
 	Origin = (138.899861111111107,35.350138888888893)
 	Pixel Size = (0.000277777777778,-0.000277777777778)
 
-.. image:: _static/images/geotiffcoordinates.png
+![geotiff coordinates](images/geotiffcoordinates.png)
 
 Recall that owakudaniDEM.npy was binary data of int16 and height value was multipled by 10.
 
@@ -356,7 +354,9 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
     }
     # Then construct webGL geometry by dem_3d, uv_dem
 
-The webGL is another topic. Here is simple THREE.js presentation.
+The webGL is another topic. index.html is a simple THREE.js sample.
+
+![hakone sample](images/hakonesample.png)
 
 ------------------------
 reference
