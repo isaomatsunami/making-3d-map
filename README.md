@@ -1,6 +1,3 @@
-# making-3d-map
-Making 3D map with GDAL/QGIS
-
 Making Subterranean Map
 ==========================
 
@@ -8,7 +5,7 @@ On May 3, 2015, Japan's Meteorological Agency issued the volcanic alert for Hako
 
 The agency's press release was like this.
 
-.. image:: _static/images/hakone20150503.png
+![screen_shot01](images/hakone20150503.png "press release")
 
 Obviously, they have depth data.
 
