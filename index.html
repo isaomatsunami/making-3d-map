@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  width: 1000px;
+  position: relative;
+}
+</style>
+<div id="chart"></div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/threejs/r69/three.min.js"></script>
+<script>
+var geoTranslator = function(offset_x,offset_y,offset_z,scale_x,scale_y,scale_z){
+    function fX(x,y,z){return (x - offset_x) * scale_x;};
+    function fY(x,y,z){return (y - offset_y) * scale_y;};
+    function fZ(x,y,z){return (z - offset_z) * scale_z;};
+    var geoTranslator = function(lon,lat,alt){
+        return [fX(lon,lat,alt),fY(lon,lat,alt),fZ(lon,lat,alt)];
+    };
+    geoTranslator.inverse = function(_x, _y, _z){
+        return [_x / scale_x + offset_x, _y / scale_y + offset_y, _z / scale_z + offset_z];
+    };
+    return geoTranslator;
+};
+var uvTranslator = function(top,right,left,bottom){
+    var w = right - left, h = bottom - top;
+    var bClamp = true;
+    var uvTranslator = function(x,y){
+        var u = (x - left) / w, v = (bottom - y) / h;
+        if(bClamp){
+            u = (u > 1.0) ? 1.0 : (u < 0.0) ? 0.0 : u;
+            v = (v > 1.0) ? 1.0 : (v < 0.0) ? 0.0 : v;
+        }
+        return [u,v];
+    };
+    uvTranslator.clamp = function(b){
+        bClamp = b;
+    }
+    return uvTranslator;
+};
+
+var geo2xyz = geoTranslator(139.027287, 35.245254, 0, 90163 * 0.001, 110000 * 0.001, 0.001);
+var geo2uv = uvTranslator(35.3500789, 139.0999126, 138.8998912, 35.1500576);
+
+THREE.terrainGeometry = function(_data){
+  THREE.Geometry.call( this );
+  var gv = this.vertices, gf = this.faces, guv = this.faceVertexUvs[0];
+    var index = 0, nLat = 720, nLon = 720, temp_uv = [];
+  if(_data.length != nLat * nLon) console.log("bad data size!");
+    for (var i = 0;i < nLat;++i){
+        for (var j = 0;j < nLon;++j){
+            var lat = 35.350138888888893 + (i + 0.5) * -0.000277777777778;
+            var lon = 138.899861111111107 + (j + 0.5) * 0.000277777777778;
+            var alt = _data[index] * 0.1;
+            var xyz = geo2xyz( lon, lat, alt );
+            var uv  = geo2uv( lon, lat, alt );
+        gv.push(new THREE.Vector3( xyz[0],xyz[1],xyz[2] ));
+        temp_uv.push(uv);
+            ++index;
+        }
+    }
+    var v0,v1,v2,v3;
+    // whole data is too large, 
+    var step = 3;
+    for (var i = 0;i < nLat - step;i+=step){
+        for (var j = 0;j < nLon - step;j+=step){
+          v0 = i * nLon + j;
+          v1 = v0 + step;
+          v2 = v0 + nLon * step;
+          v3 = v2 + step;
+          gf.push( new THREE.Face3( v0, v2, v1 ) );
+          gf.push( new THREE.Face3( v2, v3, v1 ) );
+          guv.push([
+            new THREE.Vector2( temp_uv[v0][0], temp_uv[v0][1] ),
+            new THREE.Vector2( temp_uv[v2][0], temp_uv[v2][1] ),
+            new THREE.Vector2( temp_uv[v1][0], temp_uv[v1][1] )
+          ]);
+          guv.push([
+            new THREE.Vector2( temp_uv[v2][0], temp_uv[v2][1] ),
+            new THREE.Vector2( temp_uv[v3][0], temp_uv[v3][1] ),
+            new THREE.Vector2( temp_uv[v1][0], temp_uv[v1][1] )
+          ]);
+        }
+    }
+    console.log("face size:", gf.length);
+  return this;
+};
+THREE.terrainGeometry.prototype = Object.create( THREE.Geometry.prototype );
+
+$(document).ready(function() {
+  // retrieve binary terrain data
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', 'data/owakudaniDEM.npy', true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = function(e) {
+        var data = new Int16Array(this.response);
+
+    var width = 1000, height = 700, nearFrustum = 0.1, farFrustum = 100;
+    var scene    = new THREE.Scene();
+    var camera   = new THREE.PerspectiveCamera(75, width/height, nearFrustum, farFrustum);
+    camera.position.z = 15;
+    var renderer = new THREE.WebGLRenderer();
+    renderer.setSize(width, height);
+    document.getElementById("chart").appendChild(renderer.domElement);
+
+    scene.add( new THREE.AmbientLight( 0xffffff ) );
+
+    var geometry = new THREE.terrainGeometry(data);
+
+    var diffuseTexture = THREE.ImageUtils.loadTexture("images/owakudaniColor.png");
+    var material = new THREE.MeshLambertMaterial( { map: diffuseTexture, color: 0xff00ff, ambient: 0xffffff, shading: THREE.SmoothShading } );
+    var obj = new THREE.Mesh(geometry, material);
+    scene.add(obj);
+
+    var controls = new THREE.OrbitControls( camera );
+    controls.damping = 0.2;
+    var render = function () {
+      requestAnimationFrame(render);
+      renderer.render( scene, camera );
+    };
+    render();
+    };
+    xhr.send();
+});
+</script>
