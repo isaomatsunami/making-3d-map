@@ -35,6 +35,8 @@ What I want is:
 
 * Owakudani (lon,lat) = (139.027287, 35.245254)
 * clip area [northwest, southeast] = [(138.9,35.35), (139.1,35.15)]
+
+Merge and clip data from console.
 ::
 
 	$ gdal_merge.py \
@@ -241,7 +243,7 @@ Next morning, I got my account password and permission to use data from JMA Unif
 
 The data looked like this.
 
-![original quake data](images/originaldata.png)
+![original quake data](images/originaldata.jpg)
 
 What I filtered is this. 
 
