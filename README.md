@@ -37,8 +37,8 @@ What I want is:
 * clip area [northwest, southeast] = [(138.9,35.35), (139.1,35.15)]
 
 Merge and clip data from console.
-::
 
+'''js
 	$ gdal_merge.py \
 		-of GTiff \
 		-o hakoneDEM.tif \
@@ -49,10 +49,11 @@ Merge and clip data from console.
 		-of GTiff \
 		hakoneDEM.tif \
 		owakudaniDEM.tif
+'''
 
 Check by gdalinfo instead of QGIS this time.
-::
 
+'''js
 	$ gdalinfo owakudaniDEM.tif
 	Driver: GTiff/GeoTIFF
 	Files: owakudaniDEM.tif
@@ -79,6 +80,7 @@ Check by gdalinfo instead of QGIS this time.
 	Lower Right ( 139.0998611,  35.1501389) (139d 5'59.50"E, 35d 9' 0.50"N)
 	Center      ( 138.9998611,  35.2501389) (138d59'59.50"E, 35d15' 0.50"N)
 	Band 1 Block=720x5 Type=Int16, ColorInterp=Gray
+'''
 
 Do you notice that clipped area is a little different from intention? Clipped data is bigger than instructed.
 
@@ -255,9 +257,7 @@ This is a good training for text manipulation by scripting language (Python/Ruby
 webGL presentation
 ------------------------
 
-THREE.js is the most popular library and I used it for the first version of Hakone 3D map. But it is too large a library, in many cases larger than geometry data.
-
-I wrote my own wrapper library. I won't elaborate how to use it.
+THREE.js is the most popular library and I used it for the first version of Hakone 3D map. But it is too large a library, in many cases larger than geometry data. I wrote my own wrapper library. I won't elaborate how to use it.
 
 Following points are common in both cases. 
 
@@ -271,8 +271,9 @@ In this case, I adopt a much simpler translation.
 
 Remember that the length of 1 degree of latitude is about 111000 meters. but that of longitude depends on latitude. At Owakudani (139.027287, 35.245254), 1 degree of longitude is about 90163 meters.
 The function below, geoTranslator, returns function which translates (lon(deg),lat(deg),alt(km)) into [x,y,z] array. Are you familiar to closure in javascript?
-::
 
+
+'''js
     geoTranslator = function(offset_x,offset_y,offset_z,scale_x,scale_y,scale_z){
         function fX(x,y,z){return (x - offset_x) * scale_x;};
         function fY(x,y,z){return (y - offset_y) * scale_y;};
@@ -289,6 +290,7 @@ The function below, geoTranslator, returns function which translates (lon(deg),l
 
     # test
     console.log( geo2xyz(139,35,-0.5) );
+'''
 
 By the same token, the function, uvTranslator, returns function which translates (lon(deg),lat(deg)) into [u,v] array. This is used for calculation of uv texture coordinate. 
 ::
