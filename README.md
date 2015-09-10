@@ -112,6 +112,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 * gdal_pansharpen (wait for GDAL 2.1)
 * write program (PanSharpening)
 
+::
 
 	# write out geometric information (tfw world file)
 	listgeo -tfw LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF
