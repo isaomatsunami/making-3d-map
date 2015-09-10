@@ -273,7 +273,7 @@ Remember that the length of 1 degree of latitude is about 111000 meters. but tha
 The function below, geoTranslator, returns function which translates (lon(deg),lat(deg),alt(km)) into [x,y,z] array. Are you familiar to closure in javascript?
 
 
-'''js
+```javascript
     geoTranslator = function(offset_x,offset_y,offset_z,scale_x,scale_y,scale_z){
         function fX(x,y,z){return (x - offset_x) * scale_x;};
         function fY(x,y,z){return (y - offset_y) * scale_y;};
@@ -290,7 +290,7 @@ The function below, geoTranslator, returns function which translates (lon(deg),l
 
     # test
     console.log( geo2xyz(139,35,-0.5) );
-'''
+```
 
 By the same token, the function, uvTranslator, returns function which translates (lon(deg),lat(deg)) into [u,v] array. This is used for calculation of uv texture coordinate. 
 ::
