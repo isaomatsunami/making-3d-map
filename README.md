@@ -1,5 +1,5 @@
-Making 3D Map with DGAL/QGIS
-==================================
+Making 3D Map with GDAL/QGIS/webGL
+=======================================
 
 On May 3, 2015, Japan's Meteorological Agency issued the volcanic alert for Hakone, most popular destination for foreign tourists, restricting access to the area 300 meters from Owakudani. 
 
