@@ -38,7 +38,7 @@ What I want is:
 
 Merge and clip data from console.
 
-'''js
+```
 	$ gdal_merge.py \
 		-of GTiff \
 		-o hakoneDEM.tif \
@@ -49,11 +49,11 @@ Merge and clip data from console.
 		-of GTiff \
 		hakoneDEM.tif \
 		owakudaniDEM.tif
-'''
+```
 
 Check by gdalinfo instead of QGIS this time.
 
-'''js
+```
 	$ gdalinfo owakudaniDEM.tif
 	Driver: GTiff/GeoTIFF
 	Files: owakudaniDEM.tif
@@ -80,16 +80,17 @@ Check by gdalinfo instead of QGIS this time.
 	Lower Right ( 139.0998611,  35.1501389) (139d 5'59.50"E, 35d 9' 0.50"N)
 	Center      ( 138.9998611,  35.2501389) (138d59'59.50"E, 35d15' 0.50"N)
 	Band 1 Block=720x5 Type=Int16, ColorInterp=Gray
-'''
+```
 
 Do you notice that clipped area is a little different from intention? Clipped data is bigger than instructed.
 
 Metadata:AREA_OR_POINT=Area means height data is representative height of each cell(that is pixel) in the grid. But I use this as point data so as to simplify mesh construction.
 
 call my private function (in hakone directory) to get binary height-only data.
-::
 
+```
 	python dem2npy.py owakudaniDEM.tif
+```
 
 In case of Hong Kong area, you can use uint8(0~256) instead of int16(-32768~32767), I am right?
 
@@ -116,8 +117,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 * gdal_pansharpen (wait for GDAL 2.1)
 * write program (PanSharpening in hakone directory, this is not c++ source, don't expect to use it on your PC)
 
-::
-
+```
 	# write out geometric information (tfw world file)
 	listgeo -tfw LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF
 
@@ -220,7 +220,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 	Band 1 Block=1332x1 Type=UInt16, ColorInterp=Gray
 	Band 2 Block=1332x1 Type=UInt16, ColorInterp=Undefined
 	Band 3 Block=1332x1 Type=UInt16, ColorInterp=Undefined
-
+```
 
 ![pansharpened](images/pansharpened.png)
 
@@ -293,8 +293,8 @@ The function below, geoTranslator, returns function which translates (lon(deg),l
 ```
 
 By the same token, the function, uvTranslator, returns function which translates (lon(deg),lat(deg)) into [u,v] array. This is used for calculation of uv texture coordinate. 
-::
 
+```javascript
     uvTranslator = function(top,right,left,bottom){
         var w = right - left, h = bottom - top;
         var bClamp = true;
@@ -315,7 +315,7 @@ By the same token, the function, uvTranslator, returns function which translates
 
     # test
     console.log( geo2uv(139,35) );
-
+```
 
 **Recall** the texture image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)].
 
@@ -336,8 +336,8 @@ You had inspected owakudaniDEM.tif before and gotten these information.
 ![geotiff coordinates](images/geotiffcoordinates.png)
 
 Recall that owakudaniDEM.npy was binary data of int16 and height value was multipled by 10.
-::
 
+```javascript
     # _dem is int16 binary data. change it to TypedArray
     var dem = new Int16Array(_dem);
     # containers and index
@@ -357,6 +357,7 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
         }
     }
     # Then construct webGL geometry by dem_3d, uv_dem
+```
 
 The webGL is another topic. Read the source code of index.html, a very simple THREE.js sample.
 
