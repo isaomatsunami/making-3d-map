@@ -84,8 +84,9 @@ Do you notice that clipped area is a little different from intention? Clipped da
 
 Metadata:AREA_OR_POINT=Area means height data is representative height of each cell(that is pixel) in the grid. But I use this as point data so as to simplify mesh construction.
 
-call my function to get binary height-only data.
+call my private function to get binary height-only data.
 ::
+
 	python dem2npy.py owakudaniDEM.tif
 
 In case of Hong Kong area, you can use uint8(0~256) instead of int16(-32768~32767), I am right?
