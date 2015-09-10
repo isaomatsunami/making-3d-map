@@ -50,7 +50,6 @@ Merge and clip data from console.
 		hakoneDEM.tif \
 		owakudaniDEM.tif
 
-
 Check by gdalinfo instead of QGIS this time.
 ::
 
@@ -362,7 +361,7 @@ The webGL is another topic. index.html is a simple THREE.js sample.
 ![hakone sample](images/hakonesample.png)
 
 ------------------------
-reference
+resource to learn
 ------------------------
 
 * QGIS manual/training: <https://docs.qgis.org/2.8/en/docs/index.html>

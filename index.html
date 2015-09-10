@@ -94,32 +94,32 @@ $(document).ready(function() {
     xhr.open('GET', 'data/owakudaniDEM.npy', true);
     xhr.responseType = 'arraybuffer';
     xhr.onload = function(e) {
-        var data = new Int16Array(this.response);
+      var data = new Int16Array(this.response);
 
-    var width = 1000, height = 700, nearFrustum = 0.1, farFrustum = 100;
-    var scene    = new THREE.Scene();
-    var camera   = new THREE.PerspectiveCamera(75, width/height, nearFrustum, farFrustum);
-    camera.position.z = 15;
-    var renderer = new THREE.WebGLRenderer();
-    renderer.setSize(width, height);
-    document.getElementById("chart").appendChild(renderer.domElement);
+      var width = 1000, height = 700, nearFrustum = 0.1, farFrustum = 100;
+      var scene    = new THREE.Scene();
+      var camera   = new THREE.PerspectiveCamera(75, width/height, nearFrustum, farFrustum);
+      camera.position.z = 15;
+      var renderer = new THREE.WebGLRenderer();
+      renderer.setSize(width, height);
+      document.getElementById("chart").appendChild(renderer.domElement);
 
-    scene.add( new THREE.AmbientLight( 0xffffff ) );
+      scene.add( new THREE.AmbientLight( 0xffffff ) );
 
-    var geometry = new THREE.terrainGeometry(data);
+      var geometry = new THREE.terrainGeometry(data);
 
-    var diffuseTexture = THREE.ImageUtils.loadTexture("images/owakudaniColor.png");
-    var material = new THREE.MeshLambertMaterial( { map: diffuseTexture, color: 0xff00ff, ambient: 0xffffff, shading: THREE.SmoothShading } );
-    var obj = new THREE.Mesh(geometry, material);
-    scene.add(obj);
+      var diffuseTexture = THREE.ImageUtils.loadTexture("images/owakudaniColor.png");
+      var material = new THREE.MeshLambertMaterial( { map: diffuseTexture, color: 0xff00ff, ambient: 0xffffff, shading: THREE.SmoothShading } );
+      var obj = new THREE.Mesh(geometry, material);
+      scene.add(obj);
 
-    var controls = new THREE.OrbitControls( camera );
-    controls.damping = 0.2;
-    var render = function () {
-      requestAnimationFrame(render);
-      renderer.render( scene, camera );
-    };
-    render();
+      var controls = new THREE.OrbitControls( camera );
+      controls.damping = 0.2;
+      var render = function () {
+        requestAnimationFrame(render);
+        renderer.render( scene, camera );
+      };
+      render();
     };
     xhr.send();
 });
