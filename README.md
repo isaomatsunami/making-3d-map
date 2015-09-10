@@ -84,7 +84,7 @@ Do you notice that clipped area is a little different from intention? Clipped da
 
 Metadata:AREA_OR_POINT=Area means height data is representative height of each cell(that is pixel) in the grid. But I use this as point data so as to simplify mesh construction.
 
-call my private function to get binary height-only data.
+call my private function (in hakone directory) to get binary height-only data.
 ::
 
 	python dem2npy.py owakudaniDEM.tif
@@ -112,7 +112,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 
 * arcGIS (easiest but expensive)
 * gdal_pansharpen (wait for GDAL 2.1)
-* write program (PanSharpening)
+* write program (PanSharpening in hakone directory, this is not c++ source, don't expect to use it on your PC)
 
 ::
 
