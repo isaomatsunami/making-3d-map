@@ -9,17 +9,15 @@ The agency's press release was like this.
 
 Obviously, they have depth data.
 
-I found researchers network, JMA Unified Hypocenter Catalogs <https://hinetwww11.bosai.go.jp/auth/?LANG=en> , asked for a user account and permission to use.
+I found researchers' network, JMA Unified Hypocenter Catalogs <https://hinetwww11.bosai.go.jp/auth/?LANG=en> , asked for a user account and permission to use data.
 
 ------------------------
 Elevation data
 ------------------------
 
-Terrain data is called DEM, digital elevation model. DEM is a collection of representative height of each latitude/longitude grid cell. (Possibly point height of each center of the cell)
+Terrain data is called DEM, digital elevation model. DEM is a collection of representative height of each latitude/longitude grid cell.
 
-In Japan, Geospatial Information Authority(GSI) publishes 10 meter mesh of DEM for whole country and 5 meter mesh for volcanic area.
-
-In this page, I use Aster Global DEM, 30 meter mesh for whole globe, maintained by NASA amd Japan's METI. 
+In Japan, Geospatial Information Authority(GSI) publishes 10 meter mesh of DEM for whole country and 5 meter mesh for volcanic area. In this page, I use Aster Global DEM, 30 meter mesh for whole globe, maintained by NASA amd Japan's METI. 
 
 In Earth Explorer: <http://earthexplorer.usgs.gov>, select ASTER GLOBAL DEM as dataset and download 2 files which seem to cover Hakone area.
 
@@ -119,6 +117,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 
 ```
 	# write out geometric information (tfw world file)
+	# you can skip this
 	listgeo -tfw LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF
 
 	./PanSharpening \
@@ -130,8 +129,10 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 		--o LC81070362015122LGN00/LC81070362015122LGN00_PAN_NOINFO.TIF
 
 	# this pansharpned image has no geometric information
-	# join world file to newly-created pan image
-	geotifcp -e LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF LC81070362015122LGN00/LC81070362015122LGN00_PAN_NOINFO.TIF LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF
+	# rebind B8 geoinfo to newly-created pan image
+	geotifcp -e LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF \
+		LC81070362015122LGN00/LC81070362015122LGN00_PAN_NOINFO.TIF \
+		LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF
 
 	# clip the same area as DEM file
 	$ gdal_translate \
@@ -185,7 +186,8 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 	   -s_srs EPSG:32654 \
 	   -t_srs EPSG:4326 \
 	   -r cubic \
-	   -of GTiff LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF \
+	   -of GTiff \
+	   LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF \
 	   LC81070362015122LGN00/LC81070362015122LGN00_PAN_4326.TIF
 
 	# Now that you can safely clip the image
@@ -371,11 +373,11 @@ When this map was published, quake data for recent 7 days was enough to show unu
 
 As volcanic activity lingered on, more buttons were needed. I changed UI to previous/next buttons. One month later, I created d3.brush interface to select the range of data to show.  
 
-Alert by the administrative authority had huge impact on Hakone town, which heavily depends on tourism. The Meteorological Agency came under fierce criticism from local government which urged quick lift of warning. On the other hand, access restriction for a very limited area caused wide suspicion that the agency were underestimating risk for economic reasons.
+Alert by the administrative authority had huge impact on Hakone town, which heavily depends on tourism. The Meteorological Agency came under fierce criticism from local governments which urged quick lift of warning. On the other hand, access restriction for a very limited area caused wide suspicion that the agency were underestimating risk for economic reasons.
 
 This interactive 3D map allows readers to see underground activities temporally and spatially. Although non-experts can not make an assessment of the risk for themselves, they can understand the seismologists in the administration, who had raised the alert, have what kind of information, how precise data are.
 
-I hope his approach of risk reporting is accepted in Japan, society that lost credibility on mass media after Fukushima nulear disaster.
+I hope his approach of risk reporting is accepted in Japan, society that lost credibility on government and mass media after Fukushima nulear disaster.
 
 ------------------------
 resource to learn
