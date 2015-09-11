@@ -36,7 +36,7 @@ What I want is:
 * Owakudani (lon,lat) = (139.027287, 35.245254)
 * clip area [northwest, southeast] = [(138.9,35.35), (139.1,35.15)]
 
-Merge and clip data from console.
+Merge 2 files and clip target area from console.
 
 ```
 	$ gdal_merge.py \
@@ -359,12 +359,27 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
     # Then construct webGL geometry by dem_3d, uv_dem
 ```
 
-The webGL is another topic. Read the source code of index.html, a very simple THREE.js sample.
+The webGL is another topic. Read the source code of index.html, a minimum THREE.js sample.
 
 ![hakone sample](images/hakonesample.png)
+
+------------------------
+Effects on readers
+------------------------
+
+When this map was published, quake data for recent 7 days was enough to show unusual change in the underground. I created 7 buttons to select date.
+
+As volcanic activity lingered on, more buttons were needed. I changed UI to previous/next buttons. One month later, I created d3.brush interface to select the range of data to show.  
+
+Alert by the administrative authority had huge impact on Hakone town, which heavily depends on tourism. The Meteorological Agency came under fierce criticism from local government which urged quick lift of warning. On the other hand, access restriction for a very limited area caused wide suspicion that the agency were underestimating risk for economic reasons.
+
+This interactive 3D map allows readers to see underground activities temporally and spatially. Although non-experts can not make an assessment of the risk for themselves, they can understand the seismologists in the administration, who had raised the alert, have what kind of information, how precise data are.
+
+I hope his approach of risk reporting is accepted in Japan, society that lost credibility on mass media after Fukushima nulear disaster.
 
 ------------------------
 resource to learn
 ------------------------
 
 * QGIS manual/training: <https://docs.qgis.org/2.8/en/docs/index.html>
+* GDAL http://www.gdal.org
