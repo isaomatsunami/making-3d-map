@@ -377,7 +377,7 @@ Alert by the administrative authority had huge impact on Hakone town, which heav
 
 This interactive 3D map allows readers to see underground activities temporally and spatially. Although non-experts can not make an assessment of the risk for themselves, they can understand the seismologists in the administration, who had raised the alert, have what kind of information, how precise data are.
 
-I hope his approach of risk reporting is accepted in Japan, society that lost credibility on government and mass media after Fukushima nulear disaster.
+I hope his approach of risk reporting is accepted in Japan, society that lost credibility on government and mass media after Fukushima nuclear disaster.
 
 ------------------------
 resource to learn
