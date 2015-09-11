@@ -237,7 +237,7 @@ Use and abuse your photoshop as you want, as it has no geometric information any
 
 ![photoshop map](images/photoshopmap.png)
 
-**Remember** this geoinfo-less image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)] area even after it is resized.
+**Keep in mind** this geoinfo-less image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)] area even after it is resized. (You will have to resize it as webGL accept only power of two size such as 512, 1024, 2048....)
 
 ------------------------
 Quake data
