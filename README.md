@@ -94,6 +94,10 @@ In case of Hong Kong area, you can use uint8(0~256) instead of int16(-32768~3276
 
 owakudaniDEM.npy is multipled by 10; first value is Upper Left, second is 1 pixel east of the first. You should check it by a binary editor and QGIS.
 
+	*SRS(spatial reference system, or CRS)*
+	 SRS is a pair of DATUM and PROJECTION. DATUM is an assumption about earth (radius, flattening, Greenwich meridian). PROJECTION is the distortion used on the map (Mercator/Lambert/Albers, and where is the center of the map). 
+	 The famous pair has EPSG code and most GIS softwares understand it. 
+
 ------------------------
 Texture from Landsat
 ------------------------
