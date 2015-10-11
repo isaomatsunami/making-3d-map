@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# extract height data from geotiff and save as binary
-# check data type by using gdalinfo.  
-# python dem2npy.py dem.tif
-
+# export obj from geotiff, edit LLA2XYZ/LLA2UV settings
+# python dem2obj.py dem.tif
 
 import sys, os, datetime, struct
 from sets import Set
+import numpy as np
 try:
   from osgeo import gdal, osr
   from gdalconst import *
@@ -15,9 +14,23 @@ except ImportError:
   import gdal
   from gdalconst import *
 
-flush = sys.stdout.flush
+# edit here
+def LLA2XYZ(lon, lat ,alt):
+  offset_x = 139.15
+  offset_y = 35.3
+  offset_z = 0.0
+  scale_x =  99000 * 0.001
+  scale_y = 111000 * 0.001
+  scale_z =      1 * 0.001
+  return [(lon - offset_x)*scale_x, (lat - offset_y)*scale_y, (alt - offset_z)*scale_z]
 
-import numpy as np
+def LLA2UV(lon, lat):
+  north = 35.5
+  south = 35.2
+  west  = 139.1
+  east  = 149.3
+  return [ (lon - west)/(east - west), (lat - south)/(north - south) ]
+
 
 def main(argv=None):
   # option
@@ -86,14 +99,10 @@ def main(argv=None):
       bandArray = band.ReadAsArray()
       print 'Band.XSize:', len(bandArray[0]), 'band.YSize:', len(bandArray)
 
-      for x in range(len(bandArray)):
-        for y in range(len(bandArray[x])):
-          # data is multipled by 10 (because height values will be within int16 range)
-          bandArray[x][y] = int(bandArray[x][y]*10)
-
       bands.append( bandArray )
 
     print "Size of Band:", len(bands)
+    # write out data from first band
     targetBand = 0
     targetType = np.int16
     print "raw write .. DEM.shape = ", bands[targetBand].shape
@@ -108,8 +117,41 @@ def main(argv=None):
     """
     http://docs.scipy.org/doc/numpy/reference/arrays.scalars.html#arrays-scalars-built-in
     """
-    bands[targetBand].astype(targetType).tofile(fin_name[:-4] + ".npy")
 
+    fout = open(fin_name[:-4] + ".obj", "w")
+    fout.write( "# obj data from geotif dem" )
+
+    Origin = (geotransform[0], geotransform[3])
+    xPitch, yPitch = geotransform[1], geotransform[5]
+    # XY is transposed
+    sizeY, sizeX = bands[targetBand].shape
+    bandArray = bands[targetBand]
+
+    for y in range(sizeY):
+      for x in range(sizeX):
+        lon = Origin[0] + xPitch * (x + 0.5)
+        lat = Origin[1] + yPitch * (y + 0.5)
+        alt = bandArray[y][x]
+        xyz = LLA2XYZ(lon,lat,alt)
+        fout.write( "v %f %f %f\n" % (xyz[0],xyz[1],xyz[2]) )
+
+    for y in range(sizeY):
+      for x in range(sizeX):
+        lon = Origin[0] + xPitch * (x + 0.5)
+        lat = Origin[1] + yPitch * (y + 0.5)
+        uv  = LLA2UV(lon,lat)
+        fout.write( "t %f %f\n" % (uv[0], uv[1]) )
+
+    fout.write( "o %s" % fin_name[:-4])
+
+    for y in range(sizeY - 1):
+      for x in range(sizeX - 1):
+        v0 = y * sizeX + x
+        v1 = v0 + 1
+        v2 = v0 + sizeX
+        v3 = v2 + 1
+        fout.write( "f %d/%d %d/%d %d/%d\n" % (v0,v0,v2,v2,v1,v1) )
+        fout.write( "f %d/%d %d/%d %d/%d\n" % (v2,v2,v3,v3,v1,v1) )
 
 
 if __name__ == "__main__":

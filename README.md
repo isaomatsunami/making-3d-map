@@ -27,6 +27,15 @@ Check 2 DEM files by dropping onto QGIS.
 
 ![aster DEM on QGIS](images/ASTER_QGIS.png)
 
+#### Be conscious of SRS/CRS (spatial/coordinate reference system)
+
+> SRS/CRS is datum + projection.
+> Datum is a presumed ellipsoid of the Earth. WGS 84 meridian of zero longitude is NOT the Greenwich meridian at the latitude of the Royal Observatory. Presumed Earth size differs from time to time. Japan revised SRS after 2011 earthquake due to 5-meter land shift in the eastern Japan. 
+> Projection is a systematic transformation of lon/lat onto the plane. Mercator projection is one of the most famous ones.
+> Map data with SRS is called **geo-referenced**. Geotif image is tif image with SRS embedded in the head of the file. Shapefile(.shp) is often accompanied with projection file(.prj).
+> Geo-referenced data can be processed with GDAL/OGR library. For example, a Geotif image can be transformed to another SRS image by using gdal_warp.py.
+
+
 You can easily, by QGIS, merge files into a single file and clip area as you want. In this page, I use GDAL/OGR directly from command line. (because I want to clip data exactly)
 
 What I want is:
@@ -117,6 +126,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 
 * arcGIS (easiest but expensive)
 * gdal_pansharpen (wait for GDAL 2.1)
+* GRASS GIS 7 http://planet.qgis.org/planet/tag/landsat/
 * write program (PanSharpening in hakone directory, this is not c++ source, don't expect to use it on your PC)
 
 ```
@@ -368,6 +378,28 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
 The webGL is another topic. Read the source code of index.html, a minimum THREE.js sample.
 
 ![hakone sample](images/hakonesample.png)
+
+------------------------
+Data size matters
+------------------------
+
+Sending geometry data by the above way can be costly when it comes to huge area. If geotiff size is 3000 * 3000, it will be 3000*3000*2(16bit) = 16MB. (Keep in mind that you will create equal-sized 2999*2999*2 = 18 millions triangles)
+
+![ontake texture](images/ontake_texture.png)
+
+When only small parts of the geotiff is of importance and the other part is just a background, Creating triangle mesh, of which the area in focus is fine-meshed and other area sparsely meshed, can be more efficient.
+
+![ontake mesh](images/ontake_mesh.png)
+
+But in this case, you have to send three (lon,lat,alt) data per triangle. Even if you reduce triangles to 1 million, you still have to send 1000000*3(vertices)*10( 32bit lon + 32bit lat + 16bit alt ) = 30MB data. 
+
+[In this grapchis](http://www.tokyo-np.co.jp/hold/2014/ontake/one_month_ontake_eruption.html), Mesh around the top of the moutain is 10 meter resolution, background mountains are 500 meter mesh. Each of (lon,lat,alt) are quantized to 16bit*3 and a triangle is represented by 8bit*3 indices to shared vertices. The whole geometry data is reduced to below 1 MB.
+
+-------------------------------
+geometry data compression
+-------------------------------
+
+![mesh data size](images/dataSizeOfMesh.jpg)
 
 ------------------------
 Effects on readers
