@@ -421,7 +421,7 @@ I wanted a texture image as a map for this 3D graphics.
 ![hong kong air traffic](images/HK_traffic.png)
 
 If you have a shapefile of coastal line or land polygon, use shp2png.py (change parameters in the code)
-![kanto area](images/kanto_area.png)
+![kanto area](images/kanto_jp.png)
 
 If not, one way to make image is binarization of satellite image.
 Counter-intuitively, A blue image(Band 2) is not appropriate, forest is not distinguishable from see.
