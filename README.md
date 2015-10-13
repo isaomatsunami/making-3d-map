@@ -29,11 +29,11 @@ Check 2 DEM files by dropping onto QGIS.
 
 #### Be conscious of SRS/CRS (spatial/coordinate reference system)
 
-> SRS/CRS is datum + projection.
-> Datum is a presumed ellipsoid of the Earth. WGS 84 meridian of zero longitude is NOT the Greenwich meridian at the latitude of the Royal Observatory. Presumed Earth size differs from time to time. Japan revised SRS after 2011 earthquake due to 5-meter land shift in the eastern Japan. 
-> Projection is a systematic transformation of lon/lat onto the plane. Mercator projection is one of the most famous ones.
-> Map data with SRS is called **geo-referenced**. Geotif image is tif image with SRS embedded in the head of the file. Shapefile(.shp) is often accompanied with projection file(.prj).
-> Geo-referenced data can be processed with GDAL/OGR library. For example, a Geotif image can be transformed to another SRS image by using gdal_warp.py.
+> SRS/CRS is DATUM + PROJECTION.
+> DATUM is an assumption about the Earth (radius, flattening, meridian). WGS 84 meridian of zero longitude is NOT the Greenwich meridian (the prime meridian passes 100m east of the Royal Observatory). Presumed earth radius differs from time to time. Japan revised SRS after 2011 earthquake due to 5-meter landslide in the eastern Japan. France has had their own prime meridian.
+> PROJECTION is a systematic transformation of lon/lat onto the plane (Mercator/Lambert/Albers, and where is the center of the map). Mercator projection is one of the most famous ones. Google Maps uses Google Mercator.
+> Map data with SRS is called **geo-referenced**. Geotif image is tif image with SRS embedded in the header of the file. Shapefile(.shp) is often accompanied with projection file(.prj).
+> Geo-referenced data can be processed with GDAL/OGR library. For example, a Geotif image can be transformed from one SRS to another SRS image by using gdal_warp command.
 
 
 You can easily, by QGIS, merge files into a single file and clip area as you want. In this page, I use GDAL/OGR directly from command line. (because I want to clip data exactly)
@@ -89,7 +89,7 @@ Check by gdalinfo instead of QGIS this time.
 	Band 1 Block=720x5 Type=Int16, ColorInterp=Gray
 ```
 
-Do you notice that clipped area is a little different from intention? Clipped data is bigger than instructed.
+Do you notice that clipped area is a little different from intention? Clipped data can be bigger than instructed.
 
 Metadata:AREA_OR_POINT=Area means height data is representative height of each cell(that is pixel) in the grid. But I use this as point data so as to simplify mesh construction.
 
@@ -99,13 +99,8 @@ call my private function (in hakone directory) to get binary height-only data.
 	python dem2npy.py owakudaniDEM.tif
 ```
 
-In case of Hong Kong area, you can use uint8(0~256) instead of int16(-32768~32767), I am right?
+owakudaniDEM.npy is multipled by 10 by dem2npy.py; Its first value is Upper Left, second is 1 pixel east of the first. You should check it by a binary editor and QGIS.
 
-owakudaniDEM.npy is multipled by 10; first value is Upper Left, second is 1 pixel east of the first. You should check it by a binary editor and QGIS.
-
-	*SRS(spatial reference system, or CRS)*
-	 SRS is a pair of DATUM and PROJECTION. DATUM is an assumption about earth (radius, flattening, Greenwich meridian). PROJECTION is the distortion used on the map (Mercator/Lambert/Albers, and where is the center of the map). 
-	 The famous pair has EPSG code and most GIS softwares understand it. 
 
 ------------------------
 Texture from Landsat
@@ -126,8 +121,8 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 
 * arcGIS (easiest but expensive)
 * gdal_pansharpen (wait for GDAL 2.1)
-* GRASS GIS 7 http://planet.qgis.org/planet/tag/landsat/
-* write program (PanSharpening in hakone directory, this is not c++ source, don't expect to use it on your PC)
+* GRASS GIS 7 (see http://planet.qgis.org/planet/tag/landsat/)
+* write program (PanSharpening in hakone directory, this is not c++ source, if you want, e-mail me)
 
 ```
 	# write out geometric information (tfw world file)
@@ -142,8 +137,8 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 		--weight 0.52 0.23 0.35 \
 		--o LC81070362015122LGN00/LC81070362015122LGN00_PAN_NOINFO.TIF
 
-	# this pansharpned image has no geometric information
-	# rebind B8 geoinfo to newly-created pan image
+	# this pansharpned image has no geometric information (not geo-referenced)
+	# rebind B8 geoinfo to newly-created image
 	geotifcp -e LC81070362015122LGN00/LC81070362015122LGN00_B8.TIF \
 		LC81070362015122LGN00/LC81070362015122LGN00_PAN_NOINFO.TIF \
 		LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF
@@ -154,7 +149,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 		-of GTiff \
 		LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF \
 		owakudaniRGB.tif
-	# this causes error. Projection is different. Check.
+	# this causes error. Projection is different. Check it.
 
 	$ gdalinfo LC81070362015122LGN00/LC81070362015122LGN00_PAN.TIF
 	Driver: GTiff/GeoTIFF
@@ -195,7 +190,7 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 	Band 2 Block=15501x1 Type=UInt16, ColorInterp=Undefined
 	Band 3 Block=15501x1 Type=UInt16, ColorInterp=Undefined
 
-	# EPSG is 32654, not 4326 of DEM file. So change it to 4326 (You can do it by QGIS)
+	# EPSG is 32654, not 4326(=WGS84) of DEM file. So change it to 4326 (You can do it by QGIS)
 	$ gdalwarp -overwrite \
 	   -s_srs EPSG:32654 \
 	   -t_srs EPSG:4326 \
@@ -205,7 +200,10 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 	   LC81070362015122LGN00/LC81070362015122LGN00_PAN_4326.TIF
 
 	# Now that you can safely clip the image
-	$ gdal_translate -projwin 138.9 35.35 139.1 35.15 -of GTiff LC81070362015122LGN00/LC81070362015122LGN00_PAN_4326.TIF owakudaniRGB.tif
+	$ gdal_translate -projwin 138.9 35.35 139.1 35.15 \
+	   -of GTiff \
+	   LC81070362015122LGN00/LC81070362015122LGN00_PAN_4326.TIF \
+	   owakudaniRGB.tif
 
 	# check again
 	$ gdalinfo owakudaniRGB.tif
@@ -243,21 +241,20 @@ Pansharpening is an operation which color-paints panchromatic image with less pr
 owakudaniRGB.tif is 3-band geotiff image, not RGB image. If you open it by usual image softwares, it shows only the first band of the three, in black and white.
 
 When you open it by QGIS, it automatically merges 3 band into RGB color image.
-Click on the Layer and save as image, not as value. You get RGB tif with no geometric information.
+Click on the Layer and **save as image**, not as value. This image is still geo-referenced. 
 
 ![save as image](images/saveasimage.png)
 
-Use and abuse your photoshop as you want, as it has no geometric information any more.
+Use your Photoshop as you want. But once you edit non-GIS editor, the image will lose geometric information.
+**SO keep in mind** this geoinfo-less image, unless you trim/clip it, represents [(138.8998912,35.3500789), (139.0999126,35.1500576)] area even after it is resized. (You will have to resize it as webGL accept only power of two size such as 512, 1024, 2048....)
 
 ![photoshop map](images/photoshopmap.png)
-
-**Keep in mind** this geoinfo-less image represents [(138.8998912,35.3500789), (139.0999126,35.1500576)] area even after it is resized. (You will have to resize it as webGL accept only power of two size such as 512, 1024, 2048....)
 
 ------------------------
 Quake data
 ------------------------
 
-Next morning, I got my account password and permission to use data from JMA Unified Hypocenter Catalogs.
+Next morning, I got my account and permission to use data from JMA Unified Hypocenter Catalogs.
 
 The data looked like this.
 
@@ -267,13 +264,13 @@ What I filtered is this.
 
 ![trimmed quake data](images/trimmeddata.png)
 
-This is a good training for text manipulation by scripting language (Python/Ruby).
+This is a good training for text manipulation by scripting languages (Python/Ruby).
 
 ------------------------
 webGL presentation
 ------------------------
 
-THREE.js is the most popular library and I used it for the first version of Hakone 3D map. But it is too large a library, in many cases larger than geometry data. I wrote my own wrapper library. I won't elaborate how to use it.
+THREE.js is the most popular library and I used it for the first version of Hakone 3D map. But it is too large a library(THREE.min.js = 470KB), in many cases larger than geometry data. I wrote my own wrapper library. I won't elaborate how to use it.
 
 Following points are common in both cases. 
 
@@ -286,7 +283,8 @@ ECEF system: <https://en.wikipedia.org/wiki/ECEF>
 In this case, I adopt a much simpler translation. 
 
 Remember that the length of 1 degree of latitude is about 111000 meters. but that of longitude depends on latitude. At Owakudani (139.027287, 35.245254), 1 degree of longitude is about 90163 meters.
-The function below, geoTranslator, returns function which translates (lon(deg),lat(deg),alt(km)) into [x,y,z] array. Are you familiar to closure in javascript?
+The function below, geoTranslator, returns function which translates (lon(deg),lat(deg),alt(km)) into [x,y,z] array.
+(Are you familiar to closure in javascript?)
 
 
 ```javascript
@@ -308,7 +306,7 @@ The function below, geoTranslator, returns function which translates (lon(deg),l
     console.log( geo2xyz(139,35,-0.5) );
 ```
 
-By the same token, the function, uvTranslator, returns function which translates (lon(deg),lat(deg)) into [u,v] array. This is used for calculation of uv texture coordinate. 
+By the same token, the function, uvTranslator, returns function which translates [lon(deg),lat(deg)] into [u,v]. This is used for calculation of uv texture coordinate. 
 
 ```javascript
     uvTranslator = function(top,right,left,bottom){
@@ -351,7 +349,7 @@ You had inspected owakudaniDEM.tif before and gotten these information.
 
 ![geotiff coordinates](images/geotiffcoordinates.png)
 
-Recall that owakudaniDEM.npy was binary data of int16 and height value was multipled by 10.
+Recall that owakudaniDEM.npy was a binary data of int16 and height value was multipled by 10.
 
 ```javascript
     # _dem is int16 binary data. change it to TypedArray
@@ -366,7 +364,7 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
         for (var j = 0;j < nLon;++j){
             var lat = 35.350138888888893 + (i + 0.5) * -0.000277777777778;
             var lon = 138.899861111111107 + (j + 0.5) * 0.000277777777778;
-            var alt = dem[index]* 0.1;
+            var alt = dem[index] * 0.1;
             dem_3d.push( geo2xyz( lon, lat, alt ) );
             uv_dem.push( geo2uv( lon, lat, alt ) );
             ++index;
@@ -375,31 +373,31 @@ Recall that owakudaniDEM.npy was binary data of int16 and height value was multi
     # Then construct webGL geometry by dem_3d, uv_dem
 ```
 
-The webGL is another topic. Read the source code of index.html, a minimum THREE.js sample.
+The webGL is another topic. Read the source code of sample_THREE.html, a minimum THREE.js sample.
 
 ![hakone sample](images/hakonesample.png)
 
+-------------------------------
+Geometry data compression
+-------------------------------
+
+![mesh data size](images/dataSizeOfMesh.jpg)
+
 ------------------------
-Data size matters
+Data size calculation
 ------------------------
 
-Sending geometry data by the above way can be costly when it comes to huge area. If geotiff size is 3000 * 3000, it will be 3000*3000*2(16bit) = 16MB. (Keep in mind that you will create equal-sized 2999*2999*2 = 18 millions triangles)
+Sending geometry data can be costly when it comes to large area. If a DEM geotiff size is 3000 * 3000, it will be 3000*3000*2(16bit) = 16MB. (Keep in mind that you will create equal-sized 2999*2999*2 = 18 millions triangles)
 
 ![ontake texture](images/ontake_texture.png)
 
-When only small parts of the geotiff is of importance and the other part is just a background, Creating triangle mesh, of which the area in focus is fine-meshed and other area sparsely meshed, can be more efficient.
-
-![ontake mesh](images/ontake_mesh.png)
+When only small parts of the geotiff is of importance and the other part is just a background, Creating a triangle mesh, of which the area in focus is fine-meshed and other area sparsely meshed, can be more efficient.
 
 But in this case, you have to send three (lon,lat,alt) data per triangle. Even if you reduce triangles to 1 million, you still have to send 1000000*3(vertices)*10( 32bit lon + 32bit lat + 16bit alt ) = 30MB data. 
 
 [In this grapchis](http://www.tokyo-np.co.jp/hold/2014/ontake/one_month_ontake_eruption.html), Mesh around the top of the moutain is 10 meter resolution, background mountains are 500 meter mesh. Each of (lon,lat,alt) are quantized to 16bit*3 and a triangle is represented by 8bit*3 indices to shared vertices. The whole geometry data is reduced to below 1 MB.
 
--------------------------------
-geometry data compression
--------------------------------
-
-![mesh data size](images/dataSizeOfMesh.jpg)
+![ontake mesh](images/ontake_mesh.png)
 
 ------------------------
 Effects on readers
@@ -407,17 +405,41 @@ Effects on readers
 
 When this map was published, quake data for recent 7 days was enough to show unusual change in the underground. I created 7 buttons to select date.
 
-As volcanic activity lingered on, more buttons were needed. I changed UI to previous/next buttons. One month later, I created d3.brush interface to select the range of data to show.  
+As volcanic activity lingered on, more buttons were needed. I changed UI to previous/next buttons. One month later, I created a d3.brush interface to select the range of data.
 
-Alert by the administrative authority had huge impact on Hakone town, which heavily depends on tourism. The Meteorological Agency came under fierce criticism from local governments which urged quick lift of warning. On the other hand, access restriction for a very limited area caused wide suspicion that the agency were underestimating risk for economic reasons.
+The alert by the administrative authority had huge impact on Hakone town, which heavily depends on tourism. The Meteorological Agency came under fierce criticism from local governments which urged quick lift of warning. On the other hand, access restriction for a very limited area caused wide suspicion that the agency were, for economic reasons,  underestimating risk.
 
 This interactive 3D map allows readers to see underground activities temporally and spatially. Although non-experts can not make an assessment of the risk for themselves, they can understand the seismologists in the administration, who had raised the alert, have what kind of information, how precise data are.
 
 I hope his approach of risk reporting is accepted in Japan, society that lost credibility on government and mass media after Fukushima nuclear disaster.
 
 ------------------------
+Another example
+------------------------
+
+I wanted a texture image as a map for this 3D graphics.
+![hong kong air traffic](images/HK_traffic.png)
+
+If you have a shapefile of coastal line or land polygon, use shp2png.py (change parameters in the code)
+![kanto area](images/kanto_area.png)
+
+If not, one way to make image is binarization of satellite image.
+Counter-intuitively, A blue image(Band 2) is not appropriate, forest is not distinguishable from see.
+Near-infrared red image(Band 5) shows clearly coastal line.
+
+![band image of landsat8](images/landsat_band.jpg)
+
+Open Raster Calculator, set formula like **("LC81220452015003LGN00_B5@1" \< 6700) × 255 **. 
+
+![raster calculator of band 5](images/qgis_raster_calc.png)
+
+You will get binarized image.
+
+![binary image of Band 5](images/BinaryB5.png)
+
+------------------------
 resource to learn
 ------------------------
 
 * QGIS manual/training: <https://docs.qgis.org/2.8/en/docs/index.html>
-* GDAL http://www.gdal.org
+* GDAL   <http://www.gdal.org>
